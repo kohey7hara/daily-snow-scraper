@@ -1,4 +1,4 @@
-name: Daily Snow Scraper
+name: Daily Snow Scraper and Prediction
 
 on:
   schedule:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:  # 手動実行を許可
 
 jobs:
-  scrape:
-    runs-on: ubuntu-22.04  # 現行のバージョンを明示的に指定
+  scrape-and-predict:
+    runs-on: ubuntu-22.04
 
     steps:
     - name: チェックアウトコード
@@ -23,12 +23,18 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
 
-    - name: スクリプトを実行
+    - name: スクレイピングを実行
       run: |
-        python ss4.py  # 新しいスクリプト名に変更
+        python ss4.py
+
+    - name: 天気予測を実行
+      run: |
+        python predict_snow2.py
 
     - name: CSVファイルをアップロード
-      uses: actions/upload-artifact@v4  # v4に更新
+      uses: actions/upload-artifact@v4
       with:
-        name: snow-info-data  # 成果物の名前
-        path: '*.csv'  # yyyymmdd_snow_info_data.csv を含む全CSVをアップロード
+        name: snow-and-weather-data
+        path: |
+          *_snow_info_data.csv
+          *_weather_info.csv
