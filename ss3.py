@@ -6,10 +6,16 @@ import pandas as pd
 import time
 import os
 from datetime import datetime
+from selenium.webdriver.chrome.options import Options
 
 def get_snow_info():
-    # WebDriverを自動セットアップ
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    # Chromeのオプション設定
+    options = Options()
+    options.add_argument("--headless")  # ヘッドレスモードで実行
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
     try:
         # 対象ページリストを定義
