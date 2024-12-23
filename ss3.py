@@ -4,7 +4,6 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import time
-import os
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 
@@ -15,7 +14,10 @@ def get_snow_info():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+    # WebDriverのセットアップ
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
 
     try:
         # 対象ページリストを定義
