@@ -8,10 +8,8 @@ import os
 from datetime import datetime
 
 def get_snow_info():
-    # ChromeDriverのセットアップ
-    chromedriver_path = "/opt/homebrew/bin/chromedriver"  # 手動でchromedriverのパスを指定
-    service = Service(chromedriver_path)
-    driver = webdriver.Chrome(service=service)
+    # WebDriverを自動セットアップ
+    driver = webdriver.Chrome(ChromeDriverManager().install())
 
     try:
         # 対象ページリストを定義
