@@ -3,7 +3,7 @@ name: Daily Snow Scraper
 on:
   schedule:
     - cron: '0 6 * * *'  # 毎日午前6時（UTC）に実行
-  workflow_dispatch:
+  workflow_dispatch:  # 手動実行を許可
 
 jobs:
   scrape:
@@ -25,10 +25,10 @@ jobs:
 
     - name: スクリプトを実行
       run: |
-        python ss3.py
+        python ss4.py  # 新しいスクリプト名に変更
 
     - name: CSVファイルをアップロード
       uses: actions/upload-artifact@v4  # v4に更新
       with:
-        name: snow-info-data
-        path: '*.csv'
+        name: snow-info-data  # 成果物の名前
+        path: '*.csv'  # yyyymmdd_snow_info_data.csv を含む全CSVをアップロード
