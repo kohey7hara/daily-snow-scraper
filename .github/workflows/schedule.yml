@@ -2,13 +2,8 @@ name: Daily Snow Scraper
 
 on:
   schedule:
-    # 毎日午前6時（UTC）に実行
-    - cron: '0 6 * * *'
-  workflow_dispatch: # 手動実行を有効化
-    inputs:
-      run_reason: # 任意の理由を入力可能
-        description: 'Reason for running the workflow'
-        required: false
+    - cron: '0 6 * * *'  # 毎日午前6時（UTC）に実行
+  workflow_dispatch:
 
 jobs:
   scrape:
