@@ -7,7 +7,7 @@ on:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # 現行のバージョンを明示的に指定
 
     steps:
     - name: チェックアウトコード
@@ -28,7 +28,7 @@ jobs:
         python ss3.py
 
     - name: CSVファイルをアップロード
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # v4に更新
       with:
         name: snow-info-data
         path: '*.csv'
