@@ -29,7 +29,7 @@ jobs:
 
     - name: 天気予測を実行
       run: |
-        python predict_snow2.py
+        python predict_snow3.py
 
     - name: CSVファイルをアップロード
       uses: actions/upload-artifact@v4
