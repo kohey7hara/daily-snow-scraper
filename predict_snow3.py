@@ -1,15 +1,21 @@
 import pandas as pd
 from datetime import datetime, timedelta
 
-def predict_weather():
+def predict_weather_and_snow():
     # 本日の日付を取得（ファイル名から取得）
     today = datetime.now().strftime("%Y%m%d")
-    input_file_name = f"{today}_snow_info_data.csv"  # 修正: 正しいファイル名
-    output_file_name = f"{today}_weather_info.csv"
+    input_file_name = f"{today}_snow_info_data.csv"
+    output_file_name = f"{today}_weather_and_snow_info.csv"
+    snow_park_list_file = "snow_park_list2.csv"  # スキー場リストファイル
 
     try:
-        # yyyymmdd_snow_info_data.csv を読み込む
+        # 必要なCSVファイルを読み込む
         df = pd.read_csv(input_file_name, encoding="utf-8-sig")
+        snow_park_list = pd.read_csv(snow_park_list_file, encoding="utf-8-sig")
+
+        # スキー場リストにあるスキー場のみを対象にする
+        target_parks = snow_park_list["スキー場名"].tolist()
+        df = df[df["スキー場名"].isin(target_parks)]
 
         # 日付列を抽出（曜日部分を除去して正しいフォーマットに）
         date_columns = [col for col in df.columns if "/" in col]
@@ -23,14 +29,14 @@ def predict_weather():
         start_date = datetime.strptime(today, "%Y%m%d")
         new_date_columns = [(start_date + timedelta(days=i)).strftime("%m/%d") for i in range(7)]
 
-        # 天気データのみを抽出
-        result_df = df[df["項目"] == "天気"].copy()
+        # 天気データと積雪データを抽出
+        weather_df = df[df["項目"] == "天気"].copy()
+        snow_df = df[df["項目"] == "積雪深(平均)"].copy()
 
-        # 元の日付列と新しい日付列を対応付け
+        # 日付列の対応付け
         date_mapping = dict(zip(original_date_columns, new_date_columns))
-
-        # 日付列の名称を変更
-        result_df.rename(columns=date_mapping, inplace=True)
+        weather_df.rename(columns=date_mapping, inplace=True)
+        snow_df.rename(columns=date_mapping, inplace=True)
 
         # 天気を絵文字に変換する関数
         def weather_to_emoji(weather):
@@ -41,24 +47,46 @@ def predict_weather():
                 emoji += "☁️"
             if "雪" in weather:
                 emoji += "❄️"
+            if "雨" in weather:
+                emoji += "☂"
             return emoji or weather  # 該当なしの場合は元の文字列を返す
 
-        # 改行前までの文字を抽出して絵文字に変換
-        for col in new_date_columns:
-            if col in result_df.columns:
-                result_df.loc[:, col] = result_df[col].str.split("\n").str[0].apply(weather_to_emoji)
+        # 天気と積雪深を統合する
+        result_data = []
+        for _, row in weather_df.iterrows():
+            ski_resort = row["スキー場名"]
+            # 特定のスキー場名を短縮
+            if ski_resort == "星野リゾート ネコマ マウンテン(旧アルツ磐梯＆猫魔スキー場）":
+                ski_resort = "ネコママウンテン"
+            snow_row = snow_df[snow_df["スキー場名"] == ski_resort]
+            combined_row = {"スキー場名": ski_resort}
+            for i, col in enumerate(new_date_columns):
+                if col in weather_df.columns:
+                    weather = row[col].split("\n")[0] if pd.notna(row[col]) else ""
+                    if i == 0:  # 2列目のみ積雪情報を含む
+                        snow = (
+                            snow_row[col].values[0] if not snow_row.empty and col in snow_row.columns else "0"
+                        )
+                        combined_row[col] = f"{weather_to_emoji(weather)}({snow}cm)"
+                    else:
+                        combined_row[col] = weather_to_emoji(weather)
+            result_data.append(combined_row)
+
+        # 結果をデータフレーム化
+        result_df = pd.DataFrame(result_data)
 
         # 必要な列だけを抽出（スキー場名 + 新しい日付列）
-        weather_data = result_df[["スキー場名"] + new_date_columns]
+        final_columns = ["スキー場名"] + new_date_columns
+        result_df = result_df[final_columns]
 
         # 結果をCSVに保存
-        weather_data.to_csv(output_file_name, index=False, encoding="utf-8-sig")
+        result_df.to_csv(output_file_name, index=False, encoding="utf-8-sig")
         print(f"結果を {output_file_name} に保存しました。")
 
-    except FileNotFoundError:
-        print(f"ファイルが見つかりません: {input_file_name}")
+    except FileNotFoundError as e:
+        print(f"ファイルが見つかりません: {e}")
     except Exception as e:
         print(f"エラーが発生しました: {e}")
 
 if __name__ == "__main__":
-    predict_weather()
+    predict_weather_and_snow()
