@@ -1,21 +1,14 @@
 import pandas as pd
 from datetime import datetime, timedelta
-import os
 
 def predict_weather_and_snow():
     # 本日の日付を取得（ファイル名から取得）
     today = datetime.now().strftime("%Y%m%d")
     input_file_name = f"{today}_snow_info_data.csv"
     output_file_name = f"{today}_weather_and_snow_info.csv"
-    snow_park_list_file = "snow_park_list2.csv"  # リポジトリ内の正しいパスを指定
+    snow_park_list_file = "snow_park_list2.csv"  # スキー場リストファイル
 
     try:
-        # ファイルの存在確認
-        if not os.path.exists(snow_park_list_file):
-            raise FileNotFoundError(f"スキー場リストファイルが見つかりません: {snow_park_list_file}")
-        if not os.path.exists(input_file_name):
-            raise FileNotFoundError(f"入力データファイルが見つかりません: {input_file_name}")
-
         # 必要なCSVファイルを読み込む
         df = pd.read_csv(input_file_name, encoding="utf-8-sig")
         snow_park_list = pd.read_csv(snow_park_list_file, encoding="utf-8-sig")
@@ -26,7 +19,7 @@ def predict_weather_and_snow():
 
         # 日付列を抽出（曜日部分を除去して正しいフォーマットに）
         date_columns = [col for col in df.columns if "/" in col]
-        original_date_columns = date_columns  # 元の日付列を保持
+        original_date_columns = date_columns
         date_columns = [
             datetime.strptime(col.split("(")[0].strip(), "%m/%d").strftime("%m/%d")
             for col in date_columns
@@ -56,13 +49,12 @@ def predict_weather_and_snow():
                 emoji += "❄️"
             if "雨" in weather:
                 emoji += "☂"
-            return emoji or weather  # 該当なしの場合は元の文字列を返す
+            return emoji or weather
 
         # 天気と積雪深を統合する
         result_data = []
         for _, row in weather_df.iterrows():
             ski_resort = row["スキー場名"]
-            # 特定のスキー場名を短縮
             if ski_resort == "星野リゾート ネコマ マウンテン(旧アルツ磐梯＆猫魔スキー場）":
                 ski_resort = "ネコママウンテン"
             snow_row = snow_df[snow_df["スキー場名"] == ski_resort]
@@ -70,7 +62,7 @@ def predict_weather_and_snow():
             for i, col in enumerate(new_date_columns):
                 if col in weather_df.columns:
                     weather = row[col].split("\n")[0] if pd.notna(row[col]) else ""
-                    if i == 0:  # 2列目のみ積雪情報を含む
+                    if i == 0:
                         snow = (
                             snow_row[col].values[0] if not snow_row.empty and col in snow_row.columns else "0"
                         )
