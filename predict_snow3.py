@@ -1,14 +1,21 @@
 import pandas as pd
 from datetime import datetime, timedelta
+import os
 
 def predict_weather_and_snow():
     # 本日の日付を取得（ファイル名から取得）
     today = datetime.now().strftime("%Y%m%d")
     input_file_name = f"{today}_snow_info_data.csv"
     output_file_name = f"{today}_weather_and_snow_info.csv"
-    snow_park_list_file = "snow_park_list2.csv"  # スキー場リストファイル
+    snow_park_list_file = "./data/snow_park_list2.csv"  # リポジトリ内の正しいパスを指定
 
     try:
+        # ファイルの存在確認
+        if not os.path.exists(snow_park_list_file):
+            raise FileNotFoundError(f"スキー場リストファイルが見つかりません: {snow_park_list_file}")
+        if not os.path.exists(input_file_name):
+            raise FileNotFoundError(f"入力データファイルが見つかりません: {input_file_name}")
+
         # 必要なCSVファイルを読み込む
         df = pd.read_csv(input_file_name, encoding="utf-8-sig")
         snow_park_list = pd.read_csv(snow_park_list_file, encoding="utf-8-sig")
