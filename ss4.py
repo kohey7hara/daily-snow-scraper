@@ -14,14 +14,21 @@ def get_snow_info():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
+    options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--window-size=1920,1080")
 
     # WebDriverのセットアップ
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    try:
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+    except Exception as e:
+        print(f"ChromeDriverのセットアップエラー: {e}")
+        return
 
     try:
         # 対象ページリストを定義
         urls = [f"https://surfsnow.jp/search/list/spl_snow.php?areacdl=3&page={i}" for i in range(1, 9)]
+        urls.append("https://surfsnow.jp/search/list/spl_snow.php?kencd=16")  # 新潟県のURLを追加
 
         # 統合データを保存するリスト
         combined_data = []
@@ -63,9 +70,6 @@ def get_snow_info():
                     if weather_rows:
                         # ヘッダー（天気日付）を取得
                         weather_headers = [col.text.strip() for col in weather_rows[0].find_elements(By.TAG_NAME, "th")][1:]
-
-                        # 天気情報の前に日付行を追加
-                        combined_data.append([resort_name, "日付"] + weather_headers)
 
                         for row in weather_rows[1:]:
                             item = row.find_element(By.TAG_NAME, "th").text.strip()
