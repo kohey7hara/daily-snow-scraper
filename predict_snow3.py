@@ -7,7 +7,7 @@ def predict_weather_and_snow():
     today = datetime.now().strftime("%Y%m%d")
     input_file_name = f"{today}_snow_info_data.csv"
     output_file_name = f"{today}_weather_and_snow_info.csv"
-    snow_park_list_file = "./data/snow_park_list2.csv"  # リポジトリ内の正しいパスを指定
+    snow_park_list_file = "snow_park_list2.csv"  # リポジトリ内の正しいパスを指定
 
     try:
         # ファイルの存在確認
