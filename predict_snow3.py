@@ -5,7 +5,7 @@ def predict_weather_and_snow():
     # 本日の日付を取得（ファイル名から取得）
     today = datetime.now().strftime("%Y%m%d")
     input_file_name = f"{today}_snow_info_data.csv"
-    output_file_name = f"{today}_weather_and_snow_info.csv"
+    output_file_name = f"{today}_weather_info.csv"
     snow_park_list_file = "snow_park_list2.csv"  # スキー場リストファイル
 
     try:
