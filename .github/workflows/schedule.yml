@@ -27,14 +27,9 @@ jobs:
       run: |
         python ss4.py
 
-    - name: 天気予測を実行
-      run: |
-        python predict_snow3.py
-
     - name: CSVファイルをアップロード
       uses: actions/upload-artifact@v4
       with:
-        name: snow-and-weather-data
+        name: snow-info-data
         path: |
           *_snow_info_data.csv
-          *_weather_info.csv
